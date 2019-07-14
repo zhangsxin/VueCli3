@@ -29,20 +29,38 @@ module.exports = {
       .options({
         symbolId: 'icon-[name]'
       })
+  },
+  outputDir: '../static/', // 打包文件存放地址
+  indexPath: 'zm.html', // 打包名称
+  publicPath: '/static/', // 打包后静态资源引入路径
+  devServer: {
+    host: 'localhost',
+    port: 8080, // 端口号
+    open: true, // 配置自动启动浏览器
+    hotOnly: true, // 热更新
+    proxy: {
+      '/': {
+        target: 'http://wwj.data.flow.info.corp.qihoo.net',
+        changeOrigin: true,
+        ws: false
+        // pathRewrite: {
+        //   "^/": "/"
+        // }
+      }
+      // "/test2": {
+      //   target: "http://wwj.audit.info.corp.qihoo.net/",
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     "^/test2": ""
+      //   }
+      // },
+      // "/test": {
+      //   target: "http://yapi.demo.qunar.com",
+      //   changeOrigin: true,
+      //   pathRewrite: {
+      //     "^/test": ""
+      //   }
+      // }
+    }
   }
-  /** 开发环境代理 */
-  // configureWebpack: {
-  //   devServer: {
-  //     open: true,
-  //     // https: true,
-  //     proxy: {
-  //       '/user': {
-  //         target: 'https://devadminschool.icourt.cc'
-  //       },
-  //       '/live': {
-  //         target: 'https://devadminschool.icourt.cc'
-  //       }
-  //     }
-  //   }
-  // }
 }

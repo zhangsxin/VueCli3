@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <strong><svg-icon style="fontSize:30px;" icon-class="yiren"/>404页面找不到</strong>
+    <strong>404页面找不到</strong>
   </div>
 </template>
 <style lang="scss" scoped>

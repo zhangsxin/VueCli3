@@ -1,6 +1,6 @@
 <template>
   <div class="main">
-    <strong><svg-icon style="fontSize:35px;" icon-class="yiren"/>401错误</strong>
+    <strong>401错误</strong>
   </div>
 </template>
 <style lang="scss" scoped>

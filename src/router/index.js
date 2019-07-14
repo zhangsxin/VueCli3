@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from './moudle/home'
+import Test from './moudle/test'
 
 Vue.use(Router)
 
@@ -10,7 +10,7 @@ const commonRoutes = [
   { path: '*', redirect: '/404' },
   {
     path: '/',
-    redirect: '/home'
+    redirect: '/test'
   }
 ]
 
@@ -18,5 +18,5 @@ const commonRoutes = [
 export default new Router({
   // mode: 'history',
   base: process.env.BASE_URL,
-  routes: commonRoutes.concat(Home)
+  routes: commonRoutes.concat(Test)
 })

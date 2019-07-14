@@ -1,27 +1,27 @@
-/** 请求拦截器 */
 import axios from 'axios'
 import { stringify } from 'qs' // 引入qs模块，用来序列化post类型的数据
-// axios https://www.kancloud.cn/yunye/axios/234845
-// if (process.env.NODE_ENV === 'development') {
-//   axios.defaults.baseURL = 'http://'
-// } else if (process.env.NODE_ENV === 'production') {
-//   axios.defaults.baseURL = 'http://'
-// }
-axios.defaults.timeout = 10000 // 请求超时设置
+import { Message } from 'element-ui'
+
+// 弹出框报错
+let messageErr = function (srt) {
+  Message({
+    message: srt || '未知错误',
+    type: 'error',
+    showClose: true,
+    duration: 4000
+  })
+}
+axios.defaults.timeout = 10000 // 请求超时设置10s
 axios.defaults.withCredentials = false // 表示跨域请求时是否需要使用凭证,默认否
-// 添加请求拦截器
-// 先导入vuex,因为我们要使用到里面的状态对象
-// vuex的路径根据自己的路径去写
+// post请求的时候，我们需要加上一个请求头
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
+// console.log(window.location)
+// console.log(process.env)
+// axios.defaults.baseURL = 'https://api.example.com';
 
 // 请求拦截器
 axios.interceptors.request.use(
   config => {
-    // 每次发送请求之前判断vuex中是否存在token
-    // 如果存在，则统一在http请求的header都加上token，这样后台根据token判断你的登录情况
-    // 即使本地存在token，也有可能token是过期的，所以在响应拦截器中要对返回状态进行判断
-    // const token = store.state.token;
-    // token && (config.headers.Authorization = token);
-    config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     return config
   },
   error => {
@@ -29,61 +29,43 @@ axios.interceptors.request.use(
   })
 
 // 添加响应拦截器
-axios.interceptors.response.use(function (response) {
-  // 对响应数据做点什么
-  return response
+axios.interceptors.response.use(function (res) {
+  if (res.status !== 200) {
+    messageErr(`响应错误${res.status}`)
+    return res
+  }
+  if (res.data.errno !== 0) {
+    messageErr(`错误响应码：${res.data.errno}-${res.data.errmsg}`)
+  }
+  return res.data
 }, function (error) {
-  return Promise.reject(error)
+  messageErr(`请求出错${error}`)
+  // return Promise.reject(error)
 })
-function checkError (message) {
-  console.log(message)
-}
 
-var request = (options) => {
-  // 表单传值参数格式化
+function request (options) {
+  let tmpGet = {}
+  let tmpPost = {}
+  if (options.method === 'get') {
+    tmpGet = options.params
+  } else {
+    tmpPost = stringify(options.params)
+  }
   return axios.request({
     url: options.url,
     method: options.method,
-    data: options.body,
-    params: options.params
+    data: tmpPost,
+    params: tmpGet
   }).then(response => {
-    return response
+    // return (response)
+    return Promise.resolve(response)
   }, err => {
-    checkError(err.messge)
+    // messageErr(`请求出错${err.messge}`)
     throw err
   }).catch((error) => {
-    checkError('请求失败')
+    messageErr('请求失败')
     throw error
   })
 }
-// http请求方式
-export const http = {}
-const methods = ['get', 'post', 'put', 'delete']
-methods.forEach(method => {
-  http[method] = (url, params = {}) => {
-    if (method === 'get') {
-      return request({ url, params, method })
-    }
-    return request({ url, body: stringify(params), method })
-  }
-})
 
-export default function plugin (Vue) {
-  if (plugin.installed) {
-    return
-  }
-  plugin.installed = true
-  Object.defineProperties(Vue.prototype, {
-    $http: {
-      get () {
-        const obj = {
-          get: http['get'],
-          post: http['post'],
-          put: http['put'],
-          delete: http['delete']
-        }
-        return obj
-      }
-    }
-  })
-}
+export default request
